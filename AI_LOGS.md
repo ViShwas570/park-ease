@@ -1,332 +1,514 @@
-# AI_LOGS.md — AI Conversation Transcript
+# AI_LOGS.md
 
-> Complete, unmodified AI tool conversation log for the ParkEase project.
+## Prompt 1
 
----
+I have a problem statement for a builder round. The task is to build a parking garage management system for a busy multi-level city-centre garage.
 
-## Session 1: Project Initialization & Architecture
+The main requirements are tiered pricing where the first hour has one rate, additional hours have a cheaper rate, there is a daily cap and part-hours are rounded up.
 
-### Prompt 1: Understanding the Problem
+The garage needs different spot types including compact, standard and EV spots with chargers. EV vehicles should only be assigned EV spots.
 
-```
-I have a problem statement for a builder round. The task is to build a parking garage management 
-system for a busy multi-level city-centre garage. Key requirements:
+The main operations are check-in, check-out, fee calculation and searching vehicles by plate number.
 
-- Tiered pricing: first hour is one rate, each extra hour cheaper, daily cap, part-hours round up
-- Spot types: compact, standard, EV (with charger) — EVs must get an EV spot
-- Core operations: check-in, check-out, fee calculation, search by plate
-- No double-parking allowed
-- Must include: database, REST APIs, UI, auth, search, landing page, pagination/sorting
+There should be no double-parking.
 
-The brief says "build it for any garage, not one" — so it should be configurable. 
-What's the best tech stack and architecture for this?
-```
+The application also needs a database, REST APIs, UI, authentication, search, a landing page and pagination/sorting.
 
-**AI Response:**
+The brief says the system should work for any garage rather than being built around one specific garage.
 
-Recommended stack:
-- **Backend**: Node.js + Express.js (fast to scaffold, robust REST support)
-- **Database**: SQLite via `better-sqlite3` (zero config, real SQL persistence, no server needed)
-- **Auth**: JWT + bcrypt (stateless, industry-standard)
-- **Frontend**: Vanilla HTML/CSS/JS (no build step, fast iteration)
+What would be a suitable tech stack and architecture for this?
 
-Architecture: Classic MVC pattern — Express routes call SQLite directly, static frontend served from /public/. JWT tokens in localStorage for auth state.
+## AI Response
 
-Database schema proposed with 5 tables: `users`, `levels`, `spots`, `parking_records`, `pricing`.
+For this type of project, Node.js with Express.js would be a straightforward backend choice because it makes it easy to build REST APIs quickly.
+
+SQLite would work well for the initial database because it is lightweight and does not require a separate database server.
+
+JWT with bcrypt can be used for authentication.
+
+For the frontend, vanilla HTML, CSS and JavaScript keeps the project simple and avoids the need for a frontend build system.
+
+A basic MVC-style structure can be used where Express routes handle business operations and the frontend communicates with the backend through REST APIs.
+
+The main database tables would be users, levels, spots, parking_records and pricing.
 
 ---
 
-### Prompt 2: Database Schema Design
+# Prompt 2
 
-```
-Design the complete database schema. I need:
-1. Users with roles (admin, attendant)
-2. Configurable levels (garage floors)
-3. Spots with types (compact, standard, ev)
-4. Parking records tracking check-in/out, fees
-5. Pricing tiers per vehicle type with first-hour, additional-hour, and daily cap
+Design the complete database schema for the application.
 
-Make sure foreign keys are enforced and add indexes for search performance.
-```
+I need users with roles such as admin and attendant.
 
-**AI Response:**
+I need configurable garage levels.
 
-Created 5 tables with proper relationships:
-- `users` — id, username (unique), email (unique), password_hash, role, created_at
-- `levels` — id, name, total_spots
-- `spots` — id, level_id (FK), spot_number, spot_type (CHECK constraint), is_occupied
-- `parking_records` — id, spot_id (FK), plate_number, vehicle_type, check_in_time, check_out_time, duration_hours, fee, checked_in_by (FK)
-- `pricing` — id, vehicle_type (unique), first_hour_rate, additional_hour_rate, daily_cap
+I need parking spots with compact, standard and EV types.
 
-Indexes created on: plate_number, check_out_time (for active queries), spot_type, is_occupied.
-Foreign keys enabled via `PRAGMA foreign_keys = ON`.
+I need parking records that track check-in, check-out and fees.
 
-Seed data: 4 levels (Ground, Level 1, Level 2, Basement), 85 total spots distributed across types (30% compact, 15% EV, 55% standard), default pricing tiers, and a default admin user.
+I also need pricing tiers with first-hour pricing, additional-hour pricing and a daily cap.
 
----
+Make sure relationships between the tables are handled properly and add indexes for fields that will be searched frequently.
 
-### Prompt 3: REST API Design
+## AI Response
 
-```
-Design all REST API endpoints. I need:
-- Auth (register, login, profile)
-- Parking CRUD (check-in, check-out, active vehicles, history, search)
-- Spots and levels (availability, filters)
-- Pricing (view, update for admin)
-- Dashboard stats (occupancy, revenue)
+The database can be divided into five main tables.
 
-All list endpoints must support pagination (page, limit) and sorting (sortBy, order).
-```
+The users table stores the user id, username, email, password hash, role and creation time.
 
-**AI Response:**
+The levels table stores the id, level name and total number of spots.
 
-Designed 16 endpoints across 5 route groups:
+The spots table stores the id, level id, spot number, spot type and occupancy status.
 
-**Auth** (3 endpoints):
-- POST `/api/auth/register` — register with username, email, password → returns JWT
-- POST `/api/auth/login` — login with username/password → returns JWT
-- GET `/api/auth/me` — get current user profile (requires auth)
+The parking_records table stores the parking session information including spot id, plate number, vehicle type, check-in time, check-out time, duration, fee and the user who handled the check-in.
 
-**Parking** (5 endpoints):
-- POST `/api/parking/check-in` — body: { plate_number, vehicle_type } → auto-assigns best spot
-- POST `/api/parking/check-out/:id` — calculates tiered fee, frees spot
-- GET `/api/parking/active` — all currently parked vehicles (paginated)
-- GET `/api/parking/history` — full log (paginated, sortable by any column)
-- GET `/api/parking/search?plate=` — partial plate match search
+The pricing table stores the vehicle type along with its first-hour rate, additional-hour rate and daily cap.
 
-**Spots** (4 endpoints):
-- GET `/api/spots` — all spots with filters (type, level_id, status) + pagination
-- GET `/api/spots/available` — available spots with type-wise summary
-- GET `/api/spots/levels` — all levels with occupancy counts
-- GET `/api/spots/levels/:id/spots` — spots on a specific level
+Indexes should be created for plate_number, check_out_time, spot_type and is_occupied.
 
-**Pricing** (2 endpoints):
-- GET `/api/pricing` — all pricing tiers
-- PUT `/api/pricing/:id` — update pricing (admin only)
+Foreign keys should also be enabled.
 
-**Dashboard** (1 endpoint):
-- GET `/api/dashboard/stats` — aggregated stats (occupancy %, today's revenue, check-ins/outs, recent activity, level-wise breakdown)
+Initial seed data can contain four levels named Ground, Level 1, Level 2 and Basement.
+
+The garage can start with 85 spots distributed between compact, standard and EV spaces.
 
 ---
 
-## Session 2: Backend Implementation
+# Prompt 3
 
-### Prompt 4: Implement Check-In Logic
+Design all the REST API endpoints I need.
 
-```
-Implement the check-in endpoint with these rules:
-1. Validate plate_number and vehicle_type
-2. Reject if plate is already checked in (no duplicate active records)
-3. EV vehicles MUST get an EV spot — reject if none available
-4. Compact vehicles can overflow to standard spots if no compact spots free
-5. Standard vehicles only get standard spots
-6. Mark spot as occupied atomically (use transaction)
-7. Return the assigned spot details in the response
-```
+I need authentication endpoints for registration, login and getting the current profile.
 
-**AI Response:**
+I need parking endpoints for check-in, check-out, active vehicles, parking history and searching by plate.
 
-Implemented the check-in logic in `routes/parking.js`:
+I need spot and level endpoints for availability and filters.
 
-```javascript
-// Spot assignment priority:
-// EV → only EV spots (strict enforcement)
-// Compact → compact first, then standard overflow
-// Standard → standard only
+I need pricing endpoints for viewing and updating pricing.
 
-// Transaction ensures atomicity:
-const checkInTransaction = db.transaction(() => {
-  db.prepare('UPDATE spots SET is_occupied = 1 WHERE id = ?').run(spot.id);
-  const result = db.prepare(
-    'INSERT INTO parking_records (spot_id, plate_number, vehicle_type, checked_in_by) VALUES (?, ?, ?, ?)'
-  ).run(spot.id, plate_number.toUpperCase(), vehicle_type, req.user.id);
-  return result.lastInsertRowid;
-});
-```
+I also need dashboard statistics for occupancy, revenue and recent activity.
 
-Key design decisions:
-- Plate numbers are normalized to uppercase for consistent search
-- `better-sqlite3` transactions are synchronous, preventing race conditions
-- EV spots are never assigned to non-EV vehicles (even if standard spots are full)
+The list endpoints should support pagination and sorting.
 
----
+## AI Response
 
-### Prompt 5: Implement Fee Calculation
+The API can be divided into auth, parking, spots, pricing and dashboard routes.
 
-```
-Implement the check-out fee calculation:
-- Duration = ceil((checkOutTime - checkInTime) / 1 hour) — part-hours round up
-- Fee = first_hour_rate + (duration - 1) * additional_hour_rate
-- Fee = min(fee, daily_cap) — daily cap prevents overcharging
-- Handle edge case: immediate checkout (< 1 min) should still charge minimum
-```
+Authentication can contain:
 
-**AI Response:**
+POST /api/auth/register
 
-```javascript
-const checkIn = new Date(record.check_in_time + 'Z');
-const checkOut = new Date();
-const diffMs = checkOut - checkIn;
-const durationHours = Math.ceil(diffMs / (1000 * 60 * 60)); // Round up
+POST /api/auth/login
 
-let fee = 0;
-if (durationHours <= 0) fee = 0;
-else if (durationHours === 1) fee = pricing.first_hour_rate;
-else fee = pricing.first_hour_rate + (durationHours - 1) * pricing.additional_hour_rate;
+GET /api/auth/me
 
-fee = Math.min(fee, pricing.daily_cap); // Apply cap
-```
+Parking can contain:
 
-Verification examples:
-- 45 min compact → ceil(0.75) = 1 hour → ₹30
-- 2h 10m standard → ceil(2.17) = 3 hours → ₹40 + 2×₹20 = ₹80
-- 24h standard → ₹40 + 23×₹20 = ₹500 → capped at ₹200
+POST /api/parking/check-in
+
+POST /api/parking/check-out/:id
+
+GET /api/parking/active
+
+GET /api/parking/history
+
+GET /api/parking/search?plate=
+
+Spot management can contain:
+
+GET /api/spots
+
+GET /api/spots/available
+
+GET /api/spots/levels
+
+GET /api/spots/levels/:id/spots
+
+Pricing can contain:
+
+GET /api/pricing
+
+PUT /api/pricing/:id
+
+Dashboard can contain:
+
+GET /api/dashboard/stats
+
+Pagination parameters such as page and limit can be used for list endpoints and sorting can be controlled through sortBy and order.
 
 ---
 
-## Session 3: Frontend Implementation
+# Prompt 4
 
-### Prompt 6: Design System & CSS
+Implement the check-in logic.
 
-```
-Create a premium dark-mode design system with:
-- Glassmorphism cards with blur effects
-- Custom CSS variables for consistent theming
-- Responsive grid system (2/3/4 columns)
-- Styled components: navbar, buttons, forms, tables, badges, pagination
-- Smooth micro-animations (hover, fade-in, slide-up)
-- Visual spot grid for the parking map
-- Professional typography (Inter from Google Fonts)
-```
+The system should validate plate number and vehicle type.
 
-**AI Response:**
+A vehicle should not be allowed to check in again if it already has an active record.
 
-Created `public/css/style.css` with 650+ lines of design system CSS:
+EV vehicles must get an EV spot.
 
-Color palette: Deep navy base (#0B0E17), purple primary (#6C5CE7), green accent (#00D2A0), with matching glow variants for shadows and badges.
+Compact vehicles should get compact spots first but can use standard spots if compact spots are unavailable.
 
-Components implemented:
-- **Navbar** — fixed, backdrop-blur, responsive hamburger
-- **Cards** — glass background, subtle top-border gradient, hover lift
-- **Stat Cards** — colored icons, large value, small label
-- **Tables** — striped hover, sortable headers, type-colored badges
-- **Forms** — dark inputs, purple focus ring
-- **Buttons** — gradient backgrounds, hover lift, glow shadows
-- **Spot Grid** — colored cells (green=available, red=occupied)
-- **Pagination** — centered, active state, disabled states
-- **Toast notifications** — slide-in from right, auto-dismiss
-- **Modals** — overlay blur, scale-in animation
+Standard vehicles should only get standard spots.
 
----
+The spot should be marked as occupied when the parking record is created.
 
-### Prompt 7: Landing Page
+The operation should be handled safely so two vehicles cannot get the same spot.
 
-```
-Create the landing page with all required sections:
-1. Hero section with headline and CTAs
-2. What it is (product description)
-3. Key features (4 cards)
-4. Target audience (who it's for)
-5. How it helps
-6. Three features we'd build next (roadmap)
-7. Footer
+## AI Response
 
-Make it visually impressive with scroll animations.
-```
+The check-in logic can first validate the incoming plate number and vehicle type.
 
-**AI Response:**
+Before creating a new record, the system should check whether the same plate already has an active parking session.
 
-Built `public/index.html` with 7 sections:
+For spot selection, EV vehicles should search only for EV spots.
 
-1. **Hero** — "Smart Parking, Zero Hassle" with gradient text, radial glow background, dual CTA buttons
-2. **What is ParkEase** — 3 feature cards (Check-In/Out, Smart Pricing, EV-Ready)
-3. **Key Features** — 4 cards (Search, Spot Map, Revenue Dashboard, Parking Log)
-4. **Target Audience** — City garages, hospitals/malls, EV-forward facilities
-5. **How It Helps** — Save time, zero revenue leakage, no double-parking, data-driven
-6. **Roadmap** — (1) Mobile app for drivers, (2) License plate recognition, (3) Dynamic pricing engine
-7. **Footer** — Simple brand line
+Compact vehicles should search for compact spots first and then use standard spots if necessary.
 
-Added IntersectionObserver for scroll-triggered animations on feature cards.
+Standard vehicles should only search standard spots.
+
+The spot should be marked occupied and the parking record should be created as part of the same transaction.
+
+The plate number should be stored in uppercase to make searching consistent.
 
 ---
 
-### Prompt 8: Dashboard & Interactive Pages
+# Prompt 5
 
-```
-Build the main application pages:
-1. Dashboard — stat cards (occupancy %, revenue, active, today), type breakdown, level bars, recent activity
-2. Check-in — form with plate + vehicle type, live spot availability
-3. Check-out — search active car, confirmation modal, receipt with pricing breakdown
-4. Parking log — full history table with search, multi-column sorting, pagination
-5. Spot map — visual grid per level with colored cells, filters
-6. Pricing — card per type with rates, admin edit modal
-```
+Implement the checkout fee calculation.
 
-**AI Response:**
+The parking duration should be calculated from the check-in and check-out time.
 
-Implemented all 6 pages as separate HTML + JS file pairs:
+Part-hours should round up.
 
-- `dashboard.html/js` — 4 stat cards, 2-column type/level breakdowns with progress bars, recent activity table
-- `checkin.html/js` — form with live availability sidebar, success confirmation card
-- `checkout.html/js` — plate search, active vehicles table with duration, confirmation modal, detailed receipt
-- `log.html/js` — full history table with toolbar (search, sort-by dropdown, sort-order), pagination
-- `spots.html/js` — filter toolbar (type, status), per-level card with spot grid, occupancy progress bars
-- `pricing.html/js` — 3 pricing cards with example calculations, admin edit modal
+The fee should use the first-hour rate and then the additional-hour rate.
 
-Shared utilities in `api.js`: JWT management, fetch wrapper, toast notifications, navbar builder, formatCurrency, formatDate, vehicle emojis, pagination builder.
+The final fee should never exceed the daily cap.
 
----
+Also handle very short parking sessions correctly.
 
-## Session 4: Documentation & Polish
+## AI Response
 
-### Prompt 9: README.md
+The duration can be calculated by taking the difference between checkout and check-in time and converting it into hours.
 
-```
-Create README.md with:
-- Project description
-- Setup instructions (install, run, dev mode)
-- Default credentials
-- Tech stack table
-- Project structure tree
-- Complete API endpoint table with method, path, auth requirement, description
-- Database schema overview
-- Pricing logic explanation
-- EV spot rules
-- Debugging tips
-```
+The result should then be rounded upward.
 
-**AI Response:**
+For one hour the first-hour rate is used.
 
-Created comprehensive README.md covering all required sections. API endpoint table includes all 16 endpoints with auth requirements clearly marked.
+For more than one hour the calculation is:
+
+first hour rate + (duration - 1) × additional hour rate
+
+After calculating the fee, the daily cap is applied.
+
+For example, if a vehicle stays for 45 minutes, that should count as one hour.
+
+If a standard vehicle stays for 2 hours and 10 minutes, it becomes 3 billable hours.
+
+For a standard vehicle with a ₹40 first-hour rate and ₹20 additional-hour rate, three billable hours would result in:
+
+₹40 + ₹20 + ₹20 = ₹80
+
+If the calculated fee is higher than the daily cap, the daily cap is used instead.
 
 ---
 
-### Prompt 10: REASONING.md
+# Prompt 6
 
-```
-Write REASONING.md covering:
-- Problem analysis and key constraints identified
-- Design decisions (why SQLite, why vanilla frontend, why JWT)
-- Architecture diagram
-- Spot assignment algorithm
-- Fee calculation formula
-- Testing approach with manual test scenarios
-- Edge cases handled
-- Issues found and fixed during development
-- What I'd improve with more time
-```
+Create a premium dark-mode design system for the application.
 
-**AI Response:**
+I want the UI to have glass-style cards, consistent CSS variables, responsive layouts, buttons, forms, tables, badges, pagination and small animations.
 
-Created detailed REASONING.md documenting:
-- 5 key constraints from the problem statement
-- Rationale for every tech choice
-- ASCII architecture diagram
-- Fee calculation pseudocode
-- 7 manual test scenarios with expected outcomes
-- 4 issues discovered and fixed (UTC time, EV leakage, race conditions, sub-hour billing)
-- 5 future improvements
+There should also be a visual parking spot grid.
+
+Use a professional font and keep the design consistent across all pages.
+
+## AI Response
+
+The frontend design can use a dark navy base with purple as the primary accent and green for positive or available states.
+
+The shared stylesheet should contain the common styles for the navbar, cards, buttons, forms, tables, badges, pagination, modals and notifications.
+
+The parking map can use different visual states for available and occupied spots.
+
+Animations should remain subtle so that the interface feels modern without becoming distracting.
 
 ---
 
-*End of AI conversation log.*
+# Prompt 7
+
+Create the landing page.
+
+I need a hero section, product introduction, key features, target audience, benefits, roadmap and footer.
+
+Make it visually impressive and suitable for presenting the project in a Builder Round.
+
+## AI Response
+
+The hero section can use the headline:
+
+Smart Parking, Zero Hassle
+
+The landing page can explain ParkEase through features such as check-in and check-out, smart pricing and EV-ready parking.
+
+The main features can include search, spot map, revenue dashboard and parking log.
+
+The target audience can include city garages, hospitals, malls and EV-focused parking facilities.
+
+The benefits section can focus on saving time, preventing double parking, reducing revenue leakage and improving operational visibility.
+
+Possible future features can include a mobile application, license plate recognition and dynamic pricing.
+
+---
+
+# Prompt 8
+
+Build the main application pages.
+
+I need a dashboard with statistics and recent activity.
+
+I need a check-in page with vehicle information and spot availability.
+
+I need a check-out page where an active vehicle can be searched and checked out.
+
+I need a parking log with search, sorting and pagination.
+
+I need a visual spot map.
+
+I also need a pricing page with pricing cards and an admin edit option.
+
+## AI Response
+
+The dashboard can show occupancy percentage, revenue, active vehicles, today's activity, vehicle type distribution, level occupancy and recent parking activity.
+
+The check-in page should contain the plate number and vehicle type form and display current availability.
+
+The check-out page should allow searching for active vehicles and show a confirmation step before checkout.
+
+The parking log should support search, sorting and pagination.
+
+The spot map should display each parking level and use different states for occupied and available spots.
+
+The pricing page should show the current pricing tiers and allow administrators to edit them.
+
+Shared JavaScript utilities can be placed in api.js so authentication, API calls, notifications, formatting and navigation do not have to be duplicated on every page.
+
+---
+
+# Prompt 9
+
+Create the README for the project.
+
+It should include project description, setup instructions, default credentials, tech stack, project structure, API documentation, database information, pricing logic and the important parking rules.
+
+## AI Response
+
+The README should explain the purpose of ParkEase first and then show the installation and startup process.
+
+It should document the technology stack and project structure.
+
+The API section should contain the available endpoints and their purpose.
+
+The database section should explain the main tables and relationships.
+
+The pricing section should describe first-hour pricing, additional-hour pricing and the daily cap.
+
+The parking rules should explain EV restrictions, compact overflow and duplicate check-in prevention.
+
+---
+
+# Prompt 10
+
+Create a reasoning document for the project.
+
+I want it to cover the main constraints, technology decisions, architecture, parking spot assignment, fee calculation, testing, edge cases, problems discovered and possible future improvements.
+
+## AI Response
+
+The reasoning document should explain why the selected technologies were used and how the different components communicate.
+
+It should document the spot assignment logic and the fee calculation formula.
+
+It should also describe manual testing scenarios such as login, normal check-in, EV check-in, duplicate check-in, checkout and parking history.
+
+Important edge cases include EV availability, duplicate active vehicles, compact overflow, time-zone handling and sub-hour billing.
+
+Future improvements can include mobile support, license plate recognition, dynamic pricing and more advanced reporting.
+
+---
+
+# Prompt 11
+
+How should the project structure look after implementing the frontend and backend?
+
+## AI Response
+
+The project can be organized like this:
+
+```text
+ParkEase
+│
+├── api
+│   └── index.js
+│
+├── database
+│
+├── middleware
+│
+├── public
+│   ├── index.html
+│   ├── dashboard.html
+│   ├── checkin.html
+│   ├── checkout.html
+│   ├── log.html
+│   ├── spots.html
+│   ├── pricing.html
+│   ├── css
+│   └── js
+│
+├── routes
+│
+├── server.js
+├── package.json
+├── package-lock.json
+├── README.md
+├── REASONING.md
+└── AI_LOGS.md
+```
+
+The frontend stays inside public while the backend routes and middleware remain separate.
+
+---
+
+# Prompt 12
+
+Review the project logic and tell me about important edge cases I should test before the final submission.
+
+## AI Response
+
+The important cases to test are duplicate active vehicles, EV vehicles when no EV spots are available, compact vehicles when compact spots are full, standard vehicles when standard spots are full, short parking sessions, daily cap calculation and checkout freeing the correct spot.
+
+The dashboard should also be checked after check-in and checkout to make sure the occupancy and revenue information changes correctly.
+
+The parking log should be checked with multiple records to make sure sorting, searching and pagination continue working.
+
+---
+
+# Prompt 13
+
+Make sure the application supports pagination and sorting properly for the records shown in the UI.
+
+## AI Response
+
+Pagination should be handled by accepting page and limit values from the frontend.
+
+The backend can calculate the offset and return the requested portion of the dataset.
+
+Sorting can be controlled using a sort field and an order value such as ascending or descending.
+
+The frontend should update the displayed table and pagination controls according to the API response.
+
+---
+
+# Prompt 14
+
+Review the authentication flow.
+
+Users should log in and receive a JWT.
+
+The token should be used for protected API requests.
+
+Admin-only operations such as pricing updates should require the correct role.
+
+## AI Response
+
+The login endpoint should verify the submitted credentials using the stored password hash.
+
+After successful authentication, a JWT should be generated.
+
+The frontend can store the token and include it in the Authorization header when making protected API requests.
+
+Authentication middleware should verify the token before protected operations are processed.
+
+Admin-only routes should additionally check that the authenticated user has the admin role.
+
+---
+
+# Prompt 15
+
+Review the parking workflow from the frontend perspective.
+
+I want to make sure the main user flow makes sense.
+
+## AI Response
+
+The basic workflow should be:
+
+```text
+Login
+   ↓
+Dashboard
+   ↓
+Check-In
+   ↓
+Vehicle assigned to spot
+   ↓
+Vehicle remains active
+   ↓
+Check-Out
+   ↓
+Fee calculated
+   ↓
+Spot becomes available
+   ↓
+Parking record moves into history
+```
+
+The dashboard should reflect the changes after each operation.
+
+---
+
+# Prompt 16
+
+What should be improved before submitting the project?
+
+## AI Response
+
+The main areas to review before submission are the deployed API connection, authentication behaviour, database persistence, error handling and the consistency of the frontend.
+
+The application should be tested using the actual deployment environment rather than only the local development environment.
+
+The main operations to verify are login, dashboard loading, check-in, check-out, parking history, spot availability and pricing.
+
+The documentation should also match the current implementation so that the reviewer can understand the project without having to reverse-engineer it.
+
+---
+
+# Final Development Notes
+
+ParkEase was built as a full-stack parking garage management system with a focus on the core Builder Round requirements.
+
+The project covers authentication, parking operations, spot allocation, tiered pricing, dashboard statistics, parking history, search, pagination, sorting and administrative pricing management.
+
+The important business rules are handled by the backend so they are not dependent only on frontend validation.
+
+AI assistance was used during the project for planning, architecture, implementation guidance, UI development, testing ideas, documentation and reviewing the overall design.
+
+The final workflow is:
+
+```text
+Frontend
+   ↓
+REST API
+   ↓
+Authentication
+   ↓
+Business Logic
+   ↓
+Database
+```
+
+The application is designed so that the same core structure can be adapted to different parking garages instead of being limited to one fixed parking facility.
+
+# End of AI Logs
