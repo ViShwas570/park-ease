@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Check in a vehicle to the parking garage.">
+  <title>Check In — ParkEase</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar" id="main-nav"></nav>
+
+  <div class="page-content">
+    <div class="container">
+      <div class="page-header">
+        <h1>🚗 Check In Vehicle</h1>
+        <p>Register a new vehicle into the garage</p>
+      </div>
+
+      <div class="grid-2">
+        <!-- Check-in Form -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Vehicle Details</div>
+          </div>
+
+          <div id="alert-container"></div>
+
+          <form id="checkin-form">
+            <div class="form-group">
+              <label class="form-label" for="plate_number">License Plate Number</label>
+              <input type="text" id="plate_number" class="form-input" placeholder="e.g. MH 12 AB 1234" required style="text-transform: uppercase;">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="vehicle_type">Vehicle Type</label>
+              <select id="vehicle_type" class="form-select" required>
+                <option value="">Select vehicle type</option>
+                <option value="compact">🚗 Compact</option>
+                <option value="standard">🚙 Standard</option>
+                <option value="ev">⚡ EV (Electric Vehicle)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-success" style="width: 100%;" id="checkin-btn">
+              ✓ Check In Vehicle
+            </button>
+          </form>
+        </div>
+
+        <!-- Available Spots Summary -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Available Spots</div>
+              <div class="card-subtitle">Real-time availability</div>
+            </div>
+          </div>
+          <div id="available-spots">
+            <div class="loading-spinner"><div class="spinner"></div>Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Check-in Result -->
+      <div id="checkin-result" class="hidden mt-4"></div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/checkin.js"></script>
+</body>
+</html>

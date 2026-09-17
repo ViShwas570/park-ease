@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Full parking history and log with search, sorting, and pagination.">
+  <title>Parking Log — ParkEase</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar" id="main-nav"></nav>
+
+  <div class="page-content">
+    <div class="container">
+      <div class="page-header">
+        <h1>📋 Parking Log</h1>
+        <p>Complete parking history with search and sorting</p>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <input type="text" id="search-plate" class="form-input" placeholder="🔍 Search by plate..." style="max-width:300px;text-transform:uppercase;">
+        <button class="btn btn-primary btn-sm" onclick="handleSearch()">Search</button>
+        <button class="btn btn-outline btn-sm" onclick="clearSearch()">Clear</button>
+        <div style="flex:1;"></div>
+        <select id="sort-by" class="form-select" onchange="loadLog()">
+          <option value="check_in_time">Sort: Check-in Time</option>
+          <option value="check_out_time">Sort: Check-out Time</option>
+          <option value="plate_number">Sort: Plate Number</option>
+          <option value="vehicle_type">Sort: Vehicle Type</option>
+          <option value="fee">Sort: Fee</option>
+          <option value="duration_hours">Sort: Duration</option>
+        </select>
+        <select id="sort-order" class="form-select" onchange="loadLog()" style="min-width:100px;">
+          <option value="desc">Newest First</option>
+          <option value="asc">Oldest First</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="card">
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Plate Number</th>
+                <th>Type</th>
+                <th>Spot</th>
+                <th>Level</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Duration</th>
+                <th>Fee</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="log-tbody">
+              <tr><td colspan="10"><div class="loading-spinner"><div class="spinner"></div>Loading...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="log-pagination"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/log.js"></script>
+</body>
+</html>

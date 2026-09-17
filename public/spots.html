@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Visual spot map — see all parking spots across every level in real-time.">
+  <title>Spot Map — ParkEase</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar" id="main-nav"></nav>
+
+  <div class="page-content">
+    <div class="container">
+      <div class="page-header">
+        <h1>🅿️ Spot Map</h1>
+        <p>Visual overview of all parking spots across every level</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="toolbar">
+        <select id="filter-type" class="form-select" onchange="loadSpots()">
+          <option value="">All Types</option>
+          <option value="compact">🚗 Compact</option>
+          <option value="standard">🚙 Standard</option>
+          <option value="ev">⚡ EV</option>
+        </select>
+        <select id="filter-status" class="form-select" onchange="loadSpots()">
+          <option value="">All Status</option>
+          <option value="available">Available</option>
+          <option value="occupied">Occupied</option>
+        </select>
+        <div style="flex:1;"></div>
+        <div id="spot-summary" style="display:flex;gap:16px;font-size:0.85rem;"></div>
+      </div>
+
+      <!-- Level tabs and spot grids -->
+      <div id="levels-container">
+        <div class="loading-spinner"><div class="spinner"></div>Loading spots...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/spots.js"></script>
+</body>
+</html>

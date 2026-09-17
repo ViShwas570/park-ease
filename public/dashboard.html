@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ParkEase Dashboard — Real-time parking garage statistics and activity.">
+  <title>Dashboard — ParkEase</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar" id="main-nav"></nav>
+
+  <div class="page-content">
+    <div class="container">
+      <div class="page-header">
+        <h1>📊 Dashboard</h1>
+        <p>Real-time parking garage overview</p>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid-4 mb-4" id="stats-cards">
+        <div class="stat-card">
+          <div class="stat-icon purple">🅿️</div>
+          <div class="stat-value" id="stat-occupancy">—</div>
+          <div class="stat-label">Occupancy Rate</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">💰</div>
+          <div class="stat-value" id="stat-revenue">—</div>
+          <div class="stat-label">Today's Revenue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">🚗</div>
+          <div class="stat-value" id="stat-active">—</div>
+          <div class="stat-label">Cars Currently Parked</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon amber">🔄</div>
+          <div class="stat-value" id="stat-today">—</div>
+          <div class="stat-label">Check-ins Today</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Availability by Type -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Spot Availability</div>
+              <div class="card-subtitle">By vehicle type</div>
+            </div>
+          </div>
+          <div id="type-stats">
+            <div class="loading-spinner"><div class="spinner"></div>Loading...</div>
+          </div>
+        </div>
+
+        <!-- Level-wise Occupancy -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Level Occupancy</div>
+              <div class="card-subtitle">Per-floor breakdown</div>
+            </div>
+          </div>
+          <div id="level-stats">
+            <div class="loading-spinner"><div class="spinner"></div>Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card mt-4">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Recent Activity</div>
+            <div class="card-subtitle">Latest parking operations</div>
+          </div>
+          <a href="/log.html" class="btn btn-outline btn-sm">View All →</a>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Plate</th>
+                <th>Type</th>
+                <th>Spot</th>
+                <th>Level</th>
+                <th>Check In</th>
+                <th>Status</th>
+                <th>Fee</th>
+              </tr>
+            </thead>
+            <tbody id="recent-activity">
+              <tr><td colspan="7"><div class="loading-spinner"><div class="spinner"></div>Loading...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

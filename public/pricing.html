@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="View and manage parking pricing tiers.">
+  <title>Pricing — ParkEase</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar" id="main-nav"></nav>
+
+  <div class="page-content">
+    <div class="container">
+      <div class="page-header">
+        <h1>💰 Pricing Tiers</h1>
+        <p>View and manage parking rates for each vehicle type</p>
+      </div>
+
+      <div class="alert alert-info mb-4">
+        ℹ️ <strong>How pricing works:</strong> The first hour is charged at a premium rate. Each additional hour is cheaper. A daily cap prevents overcharging for long stays. Part-hours are rounded up.
+      </div>
+
+      <div class="grid-3" id="pricing-grid">
+        <div class="loading-spinner"><div class="spinner"></div>Loading pricing...</div>
+      </div>
+
+      <!-- Edit Modal -->
+      <div id="edit-modal" class="modal-overlay hidden">
+        <div class="modal">
+          <h2>Edit Pricing</h2>
+          <p id="edit-type" style="color:var(--text-muted);margin-bottom:16px;"></p>
+          <form id="edit-pricing-form">
+            <input type="hidden" id="edit-id">
+            <div class="form-group">
+              <label class="form-label" for="edit-first-hour">First Hour Rate (₹)</label>
+              <input type="number" id="edit-first-hour" class="form-input" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-additional">Additional Hour Rate (₹)</label>
+              <input type="number" id="edit-additional" class="form-input" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-cap">Daily Cap (₹)</label>
+              <input type="number" id="edit-cap" class="form-input" step="0.01" required>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/pricing.js"></script>
+</body>
+</html>
